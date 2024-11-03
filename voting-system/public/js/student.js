@@ -72,22 +72,22 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Student added successfully!");
-                addStudentModal.style.display = "none"; // Close the modal
-                location.reload(); // Refresh the page to see the new student
-            } else {
-                alert("Error adding student: " + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred while adding the student. Please try again.");
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Student added successfully!");
+                    addStudentModal.style.display = "none"; // Close the modal
+                    location.reload(); // Refresh the page to see the new student
+                } else {
+                    alert("Error adding student: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while adding the student. Please try again.");
+            });
     };
-    
+
     const editStudentModal = document.getElementById('editStudentModal');
     // Handle Edit Student
     document.querySelectorAll('.edit-btn').forEach(button => {
@@ -114,87 +114,95 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 
-        // Close the Edit modal
-        const closeEditModal = document.getElementById('closeEditModal');
-        closeEditModal.onclick = () => {
-            document.getElementById('editStudentModal').style.display = 'none';
-        };
-    
-         // Close modal when clicking outside of it
-         window.onclick = (event) => {
-            if (event.target === editStudentModal) {
-                editStudentModal.style.display = 'none';
-            }
-        };
-    
-        // Handle faculty change in the edit form
-        document.getElementById('edit_faculty').addEventListener('change', function () {
-            const selectedFaculty = this.value;
-    
-            // When the faculty changes, reset the program dropdown to "Select Program" and load relevant programs
-            loadPrograms(selectedFaculty);
-        });
-        
-    
-        function loadPrograms(faculty, selectedProgram = null) {
-            let programs = [];
-        
-            // Define programs for each faculty
-            switch (faculty) {
-                case 'FaCET':
-                    programs = ['BSIT', 'BSCE', 'BSITM'];
-                    break;
-                case 'FALS':
-                    programs = ['BSBIO', 'BSES', 'BSA'];
-                    break;
-                case 'FBM':
-                    programs = ['BSBA', 'BSHM'];
-                    break;
-                case 'FNAHS':
-                    programs = ['BSN'];
-                    break;
-                case 'FTED':
-                    programs = ['BEED', 'BSED'];
-                    break;
-                case 'FCGE':
-                    programs = ['BSC'];
-                    break;
-            }
-        
-            // Get the program dropdown element
-            const programDropdown = document.getElementById('edit_program');
-        
-            // Reset the dropdown options to default
-            programDropdown.innerHTML = '<option value="" disabled selected>Select Program</option>';
-        
-            // Populate the dropdown with the programs for the selected faculty
-            programs.forEach(program => {
-                const option = document.createElement('option');
-                option.value = program;
-                option.textContent = program;
-        
-                // If the program matches the selectedProgram (used when loading for existing student), mark it as selected
-                if (program === selectedProgram) {
-                    option.selected = true;
-                }
-        
-                programDropdown.appendChild(option);
-            });
+    // Close the Edit modal
+    const closeEditModal = document.getElementById('closeEditModal');
+    closeEditModal.onclick = () => {
+        document.getElementById('editStudentModal').style.display = 'none';
+    };
+
+    // Close modal when clicking outside of it
+    window.onclick = (event) => {
+        if (event.target === editStudentModal) {
+            editStudentModal.style.display = 'none';
         }
-    
-        // Handle form submission
-        document.getElementById('editStudentForm').onsubmit = function (e) {
-            e.preventDefault();
-            const studentId = document.getElementById('edit_student_id').value;
-            const formData = new FormData(this);
-    
-            fetch(`/students/${studentId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: formData
-            })
+    };
+
+    // Handle faculty change in the edit form
+    document.getElementById('edit_faculty').addEventListener('change', function () {
+        const selectedFaculty = this.value;
+
+        // When the faculty changes, reset the program dropdown to "Select Program" and load relevant programs
+        loadPrograms(selectedFaculty);
+    });
+
+    /**
+     *  idk if na resolve na ni na issue nimo, Kit
+     * pero feel is naa ata need i tweak sa pag load ani.
+     * like, instead of i load lang directly ang data,
+     * what if ipa kuha ang index sa selected program
+     * idk...
+     * @param {*} faculty 
+     * @param {*} selectedProgram 
+     */
+    function loadPrograms(faculty, selectedProgram = null) {
+        let programs = [];
+
+        // Define programs for each faculty
+        switch (faculty) {
+            case 'FaCET':
+                programs = ['BSIT', 'BSCE', 'BSITM'];
+                break;
+            case 'FALS':
+                programs = ['BSBIO', 'BSES', 'BSA'];
+                break;
+            case 'FBM':
+                programs = ['BSBA', 'BSHM'];
+                break;
+            case 'FNAHS':
+                programs = ['BSN'];
+                break;
+            case 'FTED':
+                programs = ['BEED', 'BSED'];
+                break;
+            case 'FCGE':
+                programs = ['BSC'];
+                break;
+        }
+
+        // Get the program dropdown element
+        const programDropdown = document.getElementById('edit_program');
+
+        // Reset the dropdown options to default
+        programDropdown.innerHTML = '<option value="" disabled selected>Select Program</option>';
+
+        // Populate the dropdown with the programs for the selected faculty
+        programs.forEach(program => {
+            const option = document.createElement('option');
+            option.value = program;
+            option.textContent = program;
+
+            // If the program matches the selectedProgram (used when loading for existing student), mark it as selected
+            if (program === selectedProgram) {
+                option.selected = true;
+            }
+
+            programDropdown.appendChild(option);
+        });
+    }
+
+    // Handle form submission
+    document.getElementById('editStudentForm').onsubmit = function (e) {
+        e.preventDefault();
+        const studentId = document.getElementById('edit_student_id').value;
+        const formData = new FormData(this);
+
+        fetch(`/students/${studentId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: formData
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -209,23 +217,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error('Error:', error);
                 alert("An error occurred. Please try again.");
             });
-        };
-        
-        // Handle delete student functionality
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.onclick = function () {
-                const studentId = button.getAttribute('data-id');
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // CSRF token
-    
-                // Show a confirmation prompt before deleting
-                if (confirm('Are you sure you want to delete this student?')) {
-                    fetch(`/students/${studentId}`, { // Ensure this points to the correct route
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken // Include CSRF token
-                        }
-                    })
+    };
+
+    // Handle delete student functionality
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.onclick = function () {
+            const studentId = button.getAttribute('data-id');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); // CSRF token
+
+            // Show a confirmation prompt before deleting
+            if (confirm('Are you sure you want to delete this student?')) {
+                fetch(`/students/${studentId}`, { // Ensure this points to the correct route
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken // Include CSRF token
+                    }
+                })
                     .then(response => response.json()) // Expecting JSON response
                     .then(data => {
                         if (data.success) {
@@ -239,29 +247,29 @@ document.addEventListener("DOMContentLoaded", function () {
                         console.error('Error:', error);
                         alert("An error occurred while deleting the student. Please try again.");
                     });
-                }
-            };
-        });
-    
-        function searchStudents(query) {
-            // Fetch students based on the search query
-            fetch(`/students?search=${query}`)
-                .then(response => response.text()) // Expect HTML as the response
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newTableBody = doc.querySelector('#student-body').innerHTML;
-        
-                    // Replace the table body with the new filtered data
-                    document.getElementById('student-body').innerHTML = newTableBody;
-                })
-                .catch(error => {
-                    console.error('Error fetching students:', error);
-                });
-        }
-        
-        // Attach search function to the input field
-        document.getElementById('search').addEventListener('input', function() {
-            searchStudents(this.value); // Call search function as user types
-        });
+            }
+        };
+    });
+
+    function searchStudents(query) {
+        // Fetch students based on the search query
+        fetch(`/students?search=${query}`)
+            .then(response => response.text()) // Expect HTML as the response
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTableBody = doc.querySelector('#student-body').innerHTML;
+
+                // Replace the table body with the new filtered data
+                document.getElementById('student-body').innerHTML = newTableBody;
+            })
+            .catch(error => {
+                console.error('Error fetching students:', error);
+            });
+    }
+
+    // Attach search function to the input field
+    document.getElementById('search').addEventListener('input', function () {
+        searchStudents(this.value); // Call search function as user types
+    });
 });
